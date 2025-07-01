@@ -3,6 +3,7 @@ import { MouseEvent, useEffect, useMemo, useState } from 'react';
 import { useScreenState } from 'src/contexts/ScreenProvider';
 import { useWalletPassThrough } from 'src/contexts/WalletPassthroughProvider';
 import CloseIcon from 'src/icons/CloseIcon';
+import Image from 'next/image';
 
 const WalletScreen = () => {
   const { setScreen } = useScreenState();
@@ -54,7 +55,7 @@ const WalletScreen = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {wallet.adapter.icon && (
-                  <img src={wallet.adapter.icon} alt={`${wallet.adapter.name} icon`} className="w-8 h-8" />
+                  <Image src={wallet.adapter.icon} alt={`${wallet.adapter.name} icon`} width={32} height={32} className="w-8 h-8" />
                 )}
                 <div>
                   <h2 className="text-sm font-medium">{wallet.adapter.name}</h2>

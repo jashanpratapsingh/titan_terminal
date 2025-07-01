@@ -8,7 +8,7 @@ const Index = () => {
           EXPERIENCE<br />OUTPERFORMANCE
         </h1>
         <p className="text-titan-white text-lg md:text-2xl mb-8 font-medium opacity-80">
-          WITH TITAN'S META DEX AGGREGATOR
+          WITH TITAN&apos;S META DEX AGGREGATOR
         </p>
         <button className="bg-titan-orange text-titan-white font-bold py-3 px-8 rounded-md text-lg shadow-lg hover:bg-titan-yellow transition">
           JOIN WAITLIST
