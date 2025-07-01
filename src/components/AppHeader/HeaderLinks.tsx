@@ -2,6 +2,7 @@ import Link from 'next/link';
 import SwapIcon from 'src/icons/SwapIcon';
 import RepoLogo from 'src/icons/RepoLogo';
 import DiscordIcon from 'src/icons/DiscordIcon';
+import TelegramIcon from 'src/icons/TelegramIcon';
 import { cn } from 'src/misc/cn';
 
 const HeaderLink = ({
@@ -48,25 +49,18 @@ const HeaderLinks = () => {
     <div className="flex-1 justify-center hidden md:!flex text-sm h-full">
       <HeaderLink href="/" isActive title={'Demo'} icon={<SwapIcon width="20" height="20" />} />
       <HeaderLink
-        href="https://github.com/jup-ag/terminal"
-        isActive={false}
-        external
-        title={'Repo'}
-        icon={<RepoLogo width="20" height="20" />}
-      />
-      <HeaderLink
-        href="https://station.jup.ag/docs/tool-kits/terminal-walkthrough"
+        href="https://titandex.gitbook.io/titan"
         isActive={false}
         external
         title={'Docs'}
         icon={<RepoLogo width="20" height="20" />}
       />
       <HeaderLink
-        href="https://discord.gg/jup"
+        href="https://t.me/TitanDexSol"
         isActive={false}
         external
-        title={'Discord'}
-        icon={<DiscordIcon width="20" height="20" />}
+        title={'Telegram'}
+        icon={<TelegramIcon width={20} height={20} />}
       />
     </div>
   );
