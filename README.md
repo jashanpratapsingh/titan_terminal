@@ -1,287 +1,116 @@
-# Titan Terminal
+# 🚀 Titan Terminal
 
-Titan Terminal is an open-sourced, lite version of Titan that provides end-to-end swap flow by linking it in your HTML.
+## About Titan Exchange
 
-Visit our Demo / Playground over at https://terminal.jup.ag
+**Titan Exchange** is a next-generation Meta DEX Aggregator built for the Solana ecosystem. Titan's mission is to help users achieve outperformance on their token swaps by always finding the best price across all available routes and aggregators—without any extra fees.
 
-With several templates to get you started, and auto generated code snippets.
+### Key Features
 
-<img src="public/demo/terminal-hero.gif" />
+- **Meta Aggregation:** Titan aggregates multiple DEX aggregators and routes your swap to the best available quote, ensuring you always get the most value for your trade.
+- **Unique Algorithm (Kairos):** Titan's proprietary algorithm, Kairos, fixes common problems in route finding and delivers better prices for users 80% of the time.
+- **No Extra Fees:** Titan does not charge additional fees for swaps.
+- **Analytics & Referrals:** The platform provides detailed analytics on your swap performance and supports a referral system.
+- **Solana-Powered:** Leveraging Solana's low-latency, low-cost transactions for a seamless trading experience.
 
----
+### Why Titan?
 
-### Terminal V4 - Ultra mode is here
-Ultra mode will automatically come with major innovations - such as 
-- real-time slippage estimation
-- dynamic priority fees
-- optimised transaction landing
-- new Titan Shield (coming soon)
+With the explosion of on-chain liquidity and DEX options, it's hard for users to know if they're getting the best deal. Titan solves this by:
+- Searching all available routes and aggregators in real time.
+- Using advanced algorithms to optimize for price and slippage.
+- Providing a transparent, user-friendly interface.
 
-[Announcements on X](https://x.com/TitanExchange/status/1883073621389685128)
+### Learn More
 
-### V4 Deprecations
-Ultra mode streamlines the codebase, automates many annoyances like fees estimation, slippage estimation, and more. Therefore, many "features/manual toggles" are deprecated.
-- Fee supports coming to Ultra soon.
-- onRequestIx
-- onRequestIxCallback
-- onSubmitWithIx
-- maxAccounts
-- useUserSlippage
-- initialSlippageBps
-- ExactOut
-- Strict token list
-
-*Existing features and manual mode from V3 can still be accessed via `main-v3.js`.
+- **Docs:** [https://titandex.gitbook.io/titan](https://titandex.gitbook.io/titan)
+- **App:** [https://app.titandex.io/welcome](https://app.titandex.io/welcome)
+- **Telegram:** [https://t.me/TitanDexSol](https://t.me/TitanDexSol)
+- **Blog:** [https://titandex.io/blog/titan-intro](https://titandex.io/blog/titan-intro)
 
 ---
 
-## Core features
+## ✨ Features
 
-- `main-v4.js` bundle (~78Kb gzipped)
-
-  - app bundle (~425KB gzipped) are loaded on-demand when `init()` is called
-  - alternatively, preload app bundle with `data-preload` attributes
-
-- Agnostic
-
-  - Work with any dApp, `Integrated` or as a standalone `Widget`, or `Modal`
-  - Any framework, React, Plain HTML, and other frameworks.
-  - Responsive on any screen size
-
-- Form customisation
-
-  - From Full swap experience, Payment Flow, to Ape-ing tokens
-  - Fixed input/output amount, or mint
-  - ExactIn, and ExactOut (e.g. Payment) swap mode
-
-- Built-in Wallets
-
-  - Wallet Standard
-  - Passthrough Wallet from your dApp
-  - Powered by [Unified Wallet Kit](https://github.com/TeamRaccoons/wallet-kit)
-
-- Lite, but powerful
-
-  - Titan v6 API with Metis **(New✨)**
-  - State sharing with syncProps() **(New✨)**
-  - Price API integration, with high decimal/precision support to trade meme tokens
-  - ExactOut (e.g Payment)
-
-- Fees Support
-  - Customisable fees
-  - Track fees with Titan Referral Dashboard
+- **Titan-branded UI** with custom colors, logo, and hero section
+- **Meta DEX Aggregator**: Find the best swap routes across Solana
+- **Responsive Design**: Works beautifully on desktop and mobile
+- **Customizable Navigation**: Docs and Telegram links
+- **No unnecessary dependencies**: Clean Next.js + Tailwind CSS stack
 
 ---
 
-## Getting started
+## 🧑‍💻 Tech Stack
 
-- [Demo + Auto Code Gen](https://terminal.jup.ag)
-- [TLDR Example](https://github.com/jup-ag/terminal/tree/main/src/content)
-- [NPM example](#npm-support)
-- Or, step by step 👇
-
-### 1. Setup HTML
-
-Terminal is designed to work anywhere the web runs, including React, Plain HTML/JS, and many other frameworks.
-
-```html
-<!-- Attach the loading script in your <head /> -->
-<script src="https://terminal.jup.ag/main-v4.js"></script>
-
-<!-- Optionally, preload for better experience, or integrated mode -->
-<script src="https://terminal.jup.ag/main-v4.js" data-preload></script>
-```
-
-### 2. Initialize Titan Terminal
-
-#### Scenario 1: Terminal as part of your dApp (Passthrough Wallet)
-
-Your dApp already has a `<WalletProvider />`.
-
-```tsx
-window.Titan.init({ enableWalletPassthrough: true });
-```
-
-Then, syncronise wallet state between your dApp and Titan Terminal with `syncProps()`
-
-```tsx
-import { useWallet } from '@solana/wallet-adapter-react'; // Or @jup-ag/wallet-adapter;
-
-const passthroughWalletContextState = useWallet();
-useEffect(() => {
-  if (!window.Titan.syncProps) return;
-  window.Titan.syncProps({ passthroughWalletContextState });
-}, [passthroughWalletContextState.connected, props]);
-```
-
-#### Scenario 2: Standalone Terminal
-
-Your dApp does not have a `<WalletProvider />`, or is a plain HTML/JS website.
-
-```tsx
-window.Titan.init({});
-```
-
-### 3. Setup other props
-
-```tsx
-window.Titan.init({
-  // ...other props
-});
-```
-
-### 4. Finishing touches
-
-Terminal are light, but full of features, such as customising form behaviour, fees, styling and much more.
-
-[Go to our Demo](https://terminal.jup.ag) to explore all these features, with automagically generated integration code.
-
-Or, [check out our fully typed API reference](https://github.com/jup-ag/terminal/blob/main/src/types/index.d.ts) for more details.
-
-<img src="public/demo/terminal-codegen.gif" />
+- [Next.js](https://nextjs.org/) (React Framework)
+- [Tailwind CSS](https://tailwindcss.com/) (Utility-first CSS)
+- TypeScript (optional, depending on your setup)
 
 ---
 
-<br/>
-<br/>
-<br/>
+## 🚦 Getting Started
 
-## Additional API Reference
+1. **Clone the repo:**
+   ```bash
+   git clone <your-repo-url>
+   cd titan_terminal_clone
+   ```
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   pnpm install
+   ```
+3. **Run the development server:**
+   ```bash
+   npm run dev
+   ```
+4. **Open your browser:**
+   Visit [http://localhost:3000](http://localhost:3000)
 
-### Typescript Support
+---
 
-Since Titan Terminal is not published on npm, and are only importable via CDN, to get proper typing, you can create a typing decalarion `jupiter-terminal.d.ts` file in your project, and copy the contents in [src/types/index.d.ts](https://github.com/jup-ag/terminal/blob/main/src/types/index.d.ts)
+## 🛠️ Customization
 
-```tsx
-declare global {
-  interface Window {
-    Titan: TitanTerminal;
-  }
-}
-// ...
-// ...
-// ...
+- **Colors & Branding:**
+  - All colors are defined in `tailwind.config.js` under the `titan` palette.
+  - Update the logo in `src/icons/TitanLogo.tsx` and hero image in `public/` as needed.
+- **Navigation:**
+  - Edit `src/components/AppHeader/HeaderLinks.tsx` for Docs/Telegram links.
+- **Footer:**
+  - Social links have been removed for a clean look. Add your own in `src/components/Footer/Footer.tsx` if needed.
+
+---
+
+## 📄 Project Structure
+
+```
+titan_terminal_clone/
+├── src/
+│   ├── components/      # UI components (Header, Footer, etc.)
+│   ├── icons/           # SVG icon components (Titan, Telegram, etc.)
+│   ├── pages/           # Next.js pages
+│   └── styles/          # Global styles (Tailwind)
+├── public/              # Static assets (images, favicon, etc.)
+├── tailwind.config.js   # Tailwind CSS config
+├── package.json         # Project metadata & scripts
+└── ...
 ```
 
 ---
 
-### Resuming / Closing activity
+## 🤝 Contributing
 
-- Everytime `init()` is called, it will create a new activity.
-
-- If you want to resume the previous activity, you can use `resume()`.
-
-- `close()` function only hide the widget.
-
-```tsx
-if (window.Titan._instance) {
-  window.Titan.resume();
-}
-
-window.Titan.close();
-```
-
-### Default Explorer
-
-- `defaultExplorer?: 'Solana Explorer' | 'Solscan' | 'Solana Beach' | 'SolanaFM';`
-- Default: `Solana Explorer`
-
-The default explorer is set to `Solana Explorer`;
-
-You can change the default explorer by passing in the explorer name to the `defaultExplorer` prop.
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ---
 
-### Terminal callbacks
+## 📢 Links
 
-Callbacks that may be useful for your dApp, from form updates, to swap success/error.
-
-```tsx
-window.Titan.init({
-  /** Callbacks */
-  /** When an error has occured during swap */
-  onSwapError ({ error, quoteResponseMeta }: { error TransactionError; quoteResponseMeta: QuoteResponse | null }) {}
-  /** When a swap has been successful */
-  onSuccess ({ txid, swapResult, quoteResponseMeta }: { txid: string; swapResult: SwapResult; quoteResponseMeta: QuoteResponsea | null }) {}
-  /** Callback when there's changes to the form */
-  onFormUpdate (form: IForm) {}
-  /** Callback when there's changes to the screen */
-  onScreenUpdate (screen: IScreen) {}
-});
-```
-
-### Customising styles: CSSProperties
-
-Any CSS-in-JS can be injected to the outer-most container via containerStyles api.
-
-Examples:
-
-- Custom zIndex
-
-```tsx
-window.Titan.init({
-  // ...
-  containerStyles: { zIndex: 100 },
-});
-```
-
-- Custom height
-
-```tsx
-window.Titan.init({
-  // ...
-  containerStyles: { maxHeight: '90vh' },
-});
-```
-
-### Customising className: Tailwind className
-
-Tailwind classes can be injected to the outer-most container via containerClassName api.
-
-Example:
-
-- Custom breakpoints
-
-```tsx
-window.Titan.init({
-  // ...
-  containerClassName: 'max-h-[90vh] lg:max-h-[600px]',
-});
-```
-
-### NPM support
-
-```
-"@solana/spl-token": "^0.1.8",
-"@solana/web3.js": "^1.87.6",
-```
-
-As of Terminal@3.0.5, Terminal is now available as an NPM package, however, some peer dependencies are required to be installed.
-
-```tsx
-import { init, syncProps } from '@jup-ag/terminal';
-import '@jup-ag/terminal/css';
-
-import { useWallet } from '@solana/wallet-adapter-react'; // Or @jup-ag/wallet-adapter;
-const walletContextState = useWallet();
-useEffect(() => {
-  init({
-    displayMode: 'integrated',
-    integratedTargetId: 'integrated-terminal',
-  });
-}, []);
-
-// Optional: To make sure passthrough wallet are synced
-useEffect(() => {
-  syncProps({ passthroughWalletContextState: walletContextState });
-}, [walletContextState]);
-```
+- [Titan Docs](https://titandex.gitbook.io/titan)
+- [Telegram](https://t.me/TitanDexSol)
+- [Titan DEX App](https://app.titandex.io/welcome)
 
 ---
 
-### Upcoming feature / Experimentation
+## 📝 License
 
-- [ ] Limit Order
-- [ ] DCA
-- [ ] Experiment separate bundle for passthroughWallet
-- [ ] optimise getTABO
+MIT
