@@ -6,7 +6,7 @@ class MyDocument extends Document {
       <Html>
         <Head>
           <meta charSet="utf-8" />
-          <link rel="icon" href="/titan.png" />
+          <link rel="icon" href="/favicon-96x96.png" />
           <meta name="theme-color" content="#103145" />
 
           <meta

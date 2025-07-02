@@ -13,7 +13,7 @@ const V2SexyChameleonText = ({
   return (
     <span
       className={cn(
-        'text-transparent bg-clip-text bg-gradient-to-r from-titan-purple to-titan-blue',
+        'text-transparent bg-clip-text from-[rgba(199,242,132,1)] to-[rgba(0,190,240,1)] bg-v3-text-gradient',
         className,
         {
           'animate-hue': animate,
