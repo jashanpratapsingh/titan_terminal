@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { DEFAULT_EXPLORER, FormProps } from 'src/types';
 import { useUnifiedWallet, useUnifiedWalletContext } from '@jup-ag/wallet-adapter';
+import TitanSwap from '../components/TitanSwap';
 
 const IntegratedTerminal = (props: {
   formProps: FormProps;
@@ -63,19 +64,8 @@ const IntegratedTerminal = (props: {
     <div className=" w-full rounded-2xl text-white flex flex-col items-center  mb-4 overflow-hidden mt-9">
       <div className="flex flex-col lg:flex-row h-full w-full overflow-auto">
         <div className="w-full h-full rounded-xl overflow-hidden flex justify-center">
-          {/* Loading state */}
-          {!isLoaded ? (
-            <div className="h-full w-full animate-pulse bg-white/10 mt-4 lg:mt-0 lg:ml-4 flex items-center justify-center rounded-xl">
-              <p className="">Loading...</p>
-            </div>
-          ) : null}
-
-          <div
-            id="integrated-terminal"
-            className={`flex h-full overflow-auto justify-center bg-black rounded-xl ${
-              !isLoaded ? 'hidden' : ''
-            }`}
-          />
+          {/* TitanSwap UI template */}
+          <TitanSwap initialInputMint={formProps.initialInputMint || ''} initialOutputMint={formProps.initialOutputMint || ''} />
         </div>
       </div>
     </div>

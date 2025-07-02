@@ -27,7 +27,7 @@ const AppHeader: React.FC<{}> = () => {
             {openMobileMenu ? <CloseIcon /> : <MenuIcon />}
           </button>
 
-          <Link href="https://jup.ag" shallow className="flex-1">
+          <Link href="https://titandex.io" shallow className="flex-1">
             <h1 className="flex items-center text-lg font-semibold text-white">
               <TitanLogo />
               <span className="ml-3">Titan</span>

@@ -23,7 +23,7 @@ const Header: React.FC<{ setIsWalletModalOpen(toggle: boolean): void }> = ({ set
   return (
     <div className="mt-2 h-7 pl-3 pr-2">
       <div className="w-full flex items-center justify-between ">
-        <a href={jupiterDirectLink} target={'_blank'} rel="noreferrer noopener" className="flex items-center space-x-2">
+        <a href="https://titandex.io" target={'_blank'} rel="noreferrer noopener" className="flex items-center space-x-2">
           <TitanLogo width={24} height={24} />
           <span className="font-bold text-sm text-white">Titan</span>
         </a>

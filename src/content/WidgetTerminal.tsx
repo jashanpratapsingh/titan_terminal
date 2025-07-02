@@ -4,6 +4,9 @@ import JupButton from 'src/components/JupButton';
 import LeftArrowIcon from 'src/icons/LeftArrowIcon';
 import { cn } from 'src/misc/cn';
 import { DEFAULT_EXPLORER, FormProps, WidgetPosition, WidgetSize } from 'src/types';
+import TitanSwap from '../components/TitanSwap';
+import TitanLogo from 'src/icons/TitanLogo';
+import ChevronDownIcon from 'src/icons/ChevronDownIcon';
 
 const WidgetTerminal = (props: {
   formProps: FormProps;
@@ -17,6 +20,7 @@ const WidgetTerminal = (props: {
   const [size, setSize] = useState<WidgetSize>('default');
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
+  const [showSwap, setShowSwap] = useState(false);
 
   const passthroughWalletContextState = useUnifiedWallet();
   const { setShowModal } = useUnifiedWalletContext();
@@ -78,8 +82,65 @@ const WidgetTerminal = (props: {
     window.Titan.syncProps({ passthroughWalletContextState });
   }, [passthroughWalletContextState, props]);
 
+  const buttonRef = React.useRef<HTMLButtonElement>(null);
+  const overlayRef = React.useRef<HTMLDivElement>(null);
+
+  // Close overlay on outside click
+  useEffect(() => {
+    if (!showSwap) return;
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        overlayRef.current &&
+        !overlayRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setShowSwap(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSwap]);
+
   return (
     <div className="flex flex-col items-center">
+      {/* Floating Widget Button */}
+      <div
+        style={{
+          position: 'fixed',
+          zIndex: 1000,
+          [position.includes('bottom') ? 'bottom' : 'top']: 24 + offsetY,
+          [position.includes('right') ? 'right' : 'left']: 24 + offsetX,
+        }}
+      >
+        <button
+          ref={buttonRef}
+          className="rounded-full bg-black text-white shadow-lg p-3 flex items-center justify-center hover:bg-gray-800"
+          onClick={() => setShowSwap((v) => !v)}
+        >
+          {showSwap ? (
+            <ChevronDownIcon width={24} height={24} />
+          ) : (
+            <TitanLogo width={40} height={40} />
+          )}
+        </button>
+        {/* TitanSwap Overlay Popup */}
+        {showSwap && (
+          <div
+            ref={overlayRef}
+            className="absolute z-[2000] bg-black rounded-2xl shadow-2xl"
+            style={{
+              minWidth: 360,
+              ...(position === 'top-left' && { top: '100%', left: 0, marginTop: 8 }), // open down-right
+              ...(position === 'top-right' && { top: '100%', right: 0, marginTop: 8 }), // open down-left
+              ...(position === 'bottom-left' && { bottom: '100%', left: 0, marginBottom: 8 }), // open up-right
+              ...(position === 'bottom-right' && { bottom: '100%', right: 0, marginBottom: 8 }), // open up-left
+            }}
+          >
+            <TitanSwap initialInputMint={formProps.initialInputMint || ''} initialOutputMint={formProps.initialOutputMint || ''} />
+          </div>
+        )}
+      </div>
       <div className="flex mt-9 px-2 md:px-0">
         <div>
           <div className="relative mt-8 md:mt-0">
@@ -148,6 +209,7 @@ const WidgetTerminal = (props: {
                 size="sm"
                 onClick={() => {
                   setSize('sm');
+                  setShowSwap(true);
                 }}
                 className={size === 'sm' ? 'bg-white/10' : 'opacity-20 hover:opacity-70'}
               >
@@ -159,6 +221,7 @@ const WidgetTerminal = (props: {
                 size="sm"
                 onClick={() => {
                   setSize('default');
+                  setShowSwap(true);
                 }}
                 className={size === 'default' ? 'bg-white/10' : 'opacity-20 hover:opacity-70'}
               >
