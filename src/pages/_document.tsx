@@ -7,11 +7,11 @@ class MyDocument extends Document {
         <Head>
           <meta charSet="utf-8" />
           <link rel="icon" href="/favicon-96x96.png" />
-          <meta name="theme-color" content="#103145" />
+          <meta name="theme-color" content="#0B0F19" />
 
           <meta
             name="description"
-            content="Titan Terminal: An open-sourced, lite version of Titan that provides end-to-end swap flow."
+            content="Titan: The Meta DEX Aggregator. Experience the best rates, deep liquidity, and seamless swaps across all of DeFi."
           />
 
           <link rel="manifest" href="/manifest.json" crossOrigin="use-credentials" />

@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import TitanLogo from '../icons/TitanLogo';
 import JupButton from './JupButton';
+import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
+import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
+import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
+import { clusterApiUrl } from '@solana/web3.js';
+import { useWalletPassThrough } from 'src/contexts/WalletPassthroughProvider';
+import { shortenAddress } from '../misc/utils';
 
 interface TitanSwapProps {
   initialInputMint: string;
@@ -38,6 +45,9 @@ const TitanSwap: React.FC<TitanSwapProps> = ({ initialInputMint, initialOutputMi
   const [inputAmount, setInputAmount] = useState('');
   const [outputAmount, setOutputAmount] = useState('');
 
+  // Use global wallet context
+  const { publicKey, connected, connecting } = useWalletPassThrough();
+
   return (
     <div className="bg-black rounded-2xl p-4 w-[360px] mx-auto text-white shadow-lg">
       <div className="flex items-center justify-between mb-6">
@@ -45,8 +55,17 @@ const TitanSwap: React.FC<TitanSwapProps> = ({ initialInputMint, initialOutputMi
           <TitanLogo width={32} height={32} />
           <span className="font-bold text-xl">Titan</span>
         </div>
-        <JupButton size="md">Connect Wallet</JupButton>
+        {!connected ? (
+          <JupButton size="md" className="!bg-[#23272B] !text-white !rounded-xl !px-4 !py-2">
+            {connecting ? 'Connecting...' : 'Connect Wallet'}
+          </JupButton>
+        ) : (
+          <span className="bg-[#23272B] text-white rounded-xl px-4 py-2 text-xs font-mono">
+            {shortenAddress(publicKey?.toBase58?.() || String(publicKey), 4)}
+          </span>
+        )}
       </div>
+      {/* Selling Section */}
       <div className="bg-[#181C20] rounded-xl p-4 mb-4">
         <div className="mb-2 text-sm text-white/70">Selling</div>
         <div className="flex items-center justify-between bg-[#23272B] rounded-lg p-3 mb-2">
@@ -70,11 +89,13 @@ const TitanSwap: React.FC<TitanSwapProps> = ({ initialInputMint, initialOutputMi
           <span>{inputAmount || '0.00'}</span>
         </div>
       </div>
+      {/* Swap Arrow */}
       <div className="flex justify-center my-2">
         <div className="bg-[#23272B] rounded-full p-2">
           <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path fill="#fff" d="M10.707 14.707a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 1.414-1.414L9 11.586V6a1 1 0 1 1 2 0v5.586l1.293-1.293a1 1 0 1 1 1.414 1.414l-3 3Z"/></svg>
         </div>
       </div>
+      {/* Buying Section */}
       <div className="bg-[#181C20] rounded-xl p-4 mb-4">
         <div className="mb-2 text-sm text-white/70">Buying</div>
         <div className="flex items-center justify-between bg-[#23272B] rounded-lg p-3 mb-2">
@@ -98,7 +119,6 @@ const TitanSwap: React.FC<TitanSwapProps> = ({ initialInputMint, initialOutputMi
           <span>{outputAmount || '0.00'}</span>
         </div>
       </div>
-      <JupButton size="lg" className="w-full bg-[#D1FF8A] text-black font-bold mt-2">Connect Wallet</JupButton>
     </div>
   );
 };

@@ -70,7 +70,7 @@ const CodeBlocks = ({
 
   const bodyTag = useMemo(() => {
     if (displayMode === 'integrated') {
-      return `<!-- Prepare a div in your <body> for Terminal to render -->
+      return `<!-- Prepare a div in your <body> for Titan to render -->
 <!-- Adjust the width and height to suit your requirements -->
 <div id="integrated-terminal" style="width: 400px; height: 568px;"></div>
 `;
@@ -80,6 +80,7 @@ const CodeBlocks = ({
   }, [displayMode]);
 
   const INIT_SNIPPET = `
+  // Initialize Titan in your app
   window.Titan.init(${formPropsSnippet});
   `;
   const unformattedSnippet = [formConfigurator.simulateWalletPassthrough ? USE_WALLET_SNIPPET : '', INIT_SNIPPET].join(
@@ -159,79 +160,34 @@ const CodeBlocks = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-center mt-12">
-      <div className="relative w-full max-w-full lg:max-w-[80%] xl:max-w-[70%] overflow-hidden px-4 md:px-0">
-        <p className="text-white self-start pb-2 font-semibold">Setup HTML</p>
-        <p className="text-white self-start pb-2 text-xs text-white/50">
-          Terminal is designed to work anywhere the web runs, including React, Plain HTML/JS, and many other frameworks.
+    <div className="w-full max-w-3xl mx-auto mt-8">
+      <h2 className="text-lg font-bold mb-2 text-white">How to Integrate Titan</h2>
+      <div className="mb-4 text-sm text-[#9D9DA6]">
+        <p>
+          <b>Modal:</b> Titan renders as a modal and takes up the whole screen.<br />
+          <b>Integrated:</b> Titan renders as a part of your dApp.<br />
+          <b>Widget:</b> Titan renders as a floating widget that can be placed at different positions on your dApp.
         </p>
-
-        <SyntaxHighlighter language="html" showLineNumbers style={vs2015}>
-          {documentSnippet}
-        </SyntaxHighlighter>
       </div>
-
-      <div className="my-4" />
-
-      <div className="relative w-full max-w-full lg:max-w-[80%] xl:max-w-[70%] overflow-hidden px-4 md:px-0">
-        <p className="text-white self-start pb-2 font-semibold">Code snippet</p>
-
-        <div className="absolute flex space-x-2 top-0 right-4 md:right-2 ">
-          <button
-            className={cn(
-              'text-xs text-white border rounded-xl px-2 py-1 opacity-50 hover:opacity-100',
-              isCopied ? 'opacity-100 cursor-wait' : '',
-            )}
-            onClick={copyToClipboard}
-          >
-            {isCopied ? 'Copied!' : 'Copy to clipboard'}
-          </button>
-
-          <button
-            className={cn(
-              'text-xs text-white border rounded-xl px-2 py-1 opacity-50 hover:opacity-100',
-              isCopiedShareLink ? 'opacity-100 cursor-wait' : '',
-            )}
-            onClick={copyShareLink}
-          >
-            {isCopiedShareLink ? 'Copied share link!' : 'Share'}
-          </button>
+      <div className="mb-4">
+        <h3 className="font-semibold text-white mb-1">1. Add Titan Script</h3>
+        <pre className="bg-[#181C20] text-xs text-white rounded p-3 overflow-x-auto">
+{headTag}
+        </pre>
+      </div>
+      {bodyTag && (
+        <div className="mb-4">
+          <h3 className="font-semibold text-white mb-1">2. Add Target Div (Integrated Only)</h3>
+          <pre className="bg-[#181C20] text-xs text-white rounded p-3 overflow-x-auto">
+{bodyTag}
+          </pre>
         </div>
-
-        <SyntaxHighlighter language="typescript" showLineNumbers style={vs2015}>
-          {snippet}
-        </SyntaxHighlighter>
-
-        <div className="flex w-full justify-between">
-          <Link
-            target="_blank"
-            rel={'noopener noreferrer'}
-            href={'https://github.com/jup-ag/terminal/tree/main/src/content'}
-            className="mt-2 flex items-center justify-center space-x-1 text-sm text-white/50 hover:underline"
-          >
-            <p>Open Example directory</p>
-            <ExternalIcon />
-          </Link>
-          <Link
-            target="_blank"
-            rel={'noopener noreferrer'}
-            href={'https://github.com/jup-ag/terminal/blob/main/src/types/index.d.ts'}
-            className="mt-2 flex items-center justify-center space-x-1 text-sm text-white/50 hover:underline"
-          >
-            <p>Show fully typed API</p>
-            <ExternalIcon />
-          </Link>
-        </div>
-
-        <div className="mt-10">
-          <hr className="opacity-10 pt-10" />
-          <p className="text-white self-start pb-2 font-semibold">Alternatively, install from NPM</p>
-          <div>
-            <SyntaxHighlighter language="typescript" showLineNumbers style={vs2015}>
-              {npmSnippet}
-            </SyntaxHighlighter>
-          </div>
-        </div>
+      )}
+      <div className="mb-4">
+        <h3 className="font-semibold text-white mb-1">3. Initialize Titan</h3>
+        <pre className="bg-[#181C20] text-xs text-white rounded p-3 overflow-x-auto">
+{INIT_SNIPPET}
+        </pre>
       </div>
     </div>
   );

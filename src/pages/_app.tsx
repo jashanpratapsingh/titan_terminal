@@ -118,7 +118,7 @@ export default function App() {
         }}
       />
 
-      <div className="bg-v3-bg h-screen w-screen max-w-screen overflow-x-hidden flex flex-col justify-between">
+      <div className="bg-[#0B0F19] h-screen w-screen max-w-screen overflow-x-hidden flex flex-col justify-between font-sans">
         <div>
           <AppHeader />
 
@@ -127,16 +127,15 @@ export default function App() {
               <div className="flex flex-col justify-center items-center text-center">
                 <div className="flex space-x-2">
                   <V2SexyChameleonText className="text-4xl md:text-[52px] font-semibold px-4 pb-2 md:px-0">
-                    Titan Terminal
+                    Titan: The Meta DEX Aggregator
                   </V2SexyChameleonText>
 
-                  <div className="px-1 py-0.5 bg-titan-primary rounded-md ml-2.5 font-semibold flex text-xs self-start">
+                  <div className="px-1 py-0.5 bg-gradient-to-r from-[#C7F284] to-[#00BEF0] rounded-md ml-2.5 font-semibold flex text-xs self-start">
                     v4
                   </div>
                 </div>
-                <p className="text-[#9D9DA6] max-w-[100%] md:max-w-[60%] text-md mt-4 heading-[24px]">
-                  An open-sourced, lite version of Titan that provides end-to-end swap flow by linking it in your
-                  HTML. Check out the visual demo for the various integration modes below.
+                <p className="text-[#C7F284] max-w-[100%] md:max-w-[60%] text-md mt-4 heading-[24px]">
+                  Titan is the next-generation, open-source Meta DEX Aggregator. Experience the best rates, deep liquidity, and seamless swaps across all of DeFi.
                 </p>
               </div>
             </div>

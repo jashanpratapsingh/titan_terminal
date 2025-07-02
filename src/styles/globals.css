@@ -74,3 +74,25 @@
 .jupiter-has-tooltip:hover .jupiter-tooltip {
   @apply visible z-50;
 }
+
+body, html {
+  background: #0B0F19;
+  color: #C7F284;
+  font-family: 'Inter', sans-serif;
+}
+
+.bg-titan-primary {
+  background: linear-gradient(91.26deg, #C7F284 15.73%, #00BEF0 83.27%);
+}
+.text-titan-primary {
+  color: #C7F284;
+}
+.text-titan-accent {
+  color: #00BEF0;
+}
+.text-titan-white {
+  color: #F8FAFC;
+}
+.bg-titan-background {
+  background: #0B0F19;
+}

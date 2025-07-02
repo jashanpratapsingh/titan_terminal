@@ -55,12 +55,6 @@ const ModalTerminal = (props: {
       {showTitanModal && (
         <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center z-50 bg-black/60">
           <div ref={modalContentRef} className="relative">
-            <button
-              className="absolute -top-4 -right-4 bg-black text-white rounded-full p-2"
-              onClick={() => setShowTitanModal(false)}
-            >
-              ✕
-            </button>
             <TitanSwap initialInputMint={formProps.initialInputMint || ''} initialOutputMint={formProps.initialOutputMint || ''} />
           </div>
         </div>
