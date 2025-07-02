@@ -64,7 +64,7 @@ const ConfirmationScreen = () => {
         <JupButton
           size="lg"
           className={cn(
-            'w-full mt-4 disabled:opacity-50 !text-uiv2-text/75 leading-none !max-h-14 bg-gradient-to-r from-[#00BEF0] to-[#C7F284]',
+            'w-full mt-4 disabled:opacity-50 !text-uiv2-text/75 leading-none !max-h-14 bg-gradient-to-r from-titan-purple to-titan-blue',
           )}
           onClick={onSubmit}
         >

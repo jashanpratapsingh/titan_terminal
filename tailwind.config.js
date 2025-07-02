@@ -29,7 +29,6 @@ module.exports = {
         'v2-perps-input': '#13181D',
 
         'v3-bg': 'rgba(28, 41, 54, 1)',
-        'v3-primary': '#c7f284',
         'v3-modal': '#222B33',
 
         // #region V3 palette
@@ -53,6 +52,9 @@ module.exports = {
           white: '#FFFFFF',      // Soft White
           pink: '#C43AFF',       // Accent Pink
         },
+        // Remove Jupiter v3-primary and v3-text-gradient
+        // Add Titan gradient example:
+        'titan-gradient': 'linear-gradient(90deg, #7B2FF2 0%, #1A5AFF 100%)',
       },
       fontSize: {
         xxs: ['0.625rem', '1rem'],
