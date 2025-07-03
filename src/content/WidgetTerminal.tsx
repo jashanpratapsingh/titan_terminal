@@ -21,28 +21,44 @@ const WidgetTerminal = (props: {
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
   const [showSwap, setShowSwap] = useState(false);
+  const [titanReady, setTitanReady] = useState(false);
 
   const passthroughWalletContextState = useUnifiedWallet();
   const { setShowModal } = useUnifiedWalletContext();
 
-  const launchTerminal = useCallback(() => {
-    window.Titan.init({
-      displayMode: 'widget',
-      widgetStyle: {
-        position,
-        size,
-        offset: {
-          x: offsetX,
-          y: offsetY,
-        },
-      },
-      formProps,
-      enableWalletPassthrough: simulateWalletPassthrough,
-      passthroughWalletContextState: simulateWalletPassthrough ? passthroughWalletContextState : undefined,
-      onRequestConnectWallet: () => setShowModal(true),
+  // Wait for Titan to be available
+  useEffect(() => {
+    function checkTitan() {
+      if (typeof window !== 'undefined' && window.Titan && typeof window.Titan.init === 'function') {
+        setTitanReady(true);
+      } else {
+        setTimeout(checkTitan, 200);
+      }
+    }
+    checkTitan();
+  }, []);
 
-      defaultExplorer,
-    });
+  const launchTerminal = useCallback(() => {
+    if (typeof window !== 'undefined' && window.Titan && typeof window.Titan.init === 'function') {
+      window.Titan.init({
+        displayMode: 'widget',
+        widgetStyle: {
+          position,
+          size,
+          offset: {
+            x: offsetX,
+            y: offsetY,
+          },
+        },
+        formProps,
+        enableWalletPassthrough: simulateWalletPassthrough,
+        passthroughWalletContextState: simulateWalletPassthrough ? passthroughWalletContextState : undefined,
+        onRequestConnectWallet: () => setShowModal(true),
+        defaultExplorer,
+      });
+    } else {
+      console.warn('Titan is not loaded yet.');
+    }
   }, [
     defaultExplorer,
     formProps,
@@ -78,8 +94,9 @@ const WidgetTerminal = (props: {
 
   // To make sure passthrough wallet are synced
   useEffect(() => {
-    if (!window.Titan.syncProps) return;
-    window.Titan.syncProps({ passthroughWalletContextState });
+    if (typeof window !== 'undefined' && window.Titan && typeof window.Titan.syncProps === 'function') {
+      window.Titan.syncProps({ passthroughWalletContextState });
+    }
   }, [passthroughWalletContextState, props]);
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
@@ -116,7 +133,8 @@ const WidgetTerminal = (props: {
         <button
           ref={buttonRef}
           className="rounded-full bg-black text-white shadow-lg p-3 flex items-center justify-center hover:bg-gray-800"
-          onClick={() => setShowSwap((v) => !v)}
+          onClick={() => titanReady && setShowSwap((v) => !v)}
+          disabled={!titanReady}
         >
           {showSwap ? (
             <ChevronDownIcon width={24} height={24} />
@@ -124,6 +142,7 @@ const WidgetTerminal = (props: {
             <TitanLogo width={40} height={40} />
           )}
         </button>
+        {!titanReady && <span className="block text-xs text-yellow-400 mt-2">Loading Titan...</span>}
         {/* TitanSwap Overlay Popup */}
         {showSwap && (
           <div
