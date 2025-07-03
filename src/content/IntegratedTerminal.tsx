@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
 import { DEFAULT_EXPLORER, FormProps } from 'src/types';
-import { useUnifiedWallet, useUnifiedWalletContext } from '@jup-ag/wallet-adapter';
+import WalletDisconnectedGraphic from 'src/icons/WalletDisconnectedGraphic';
 import TitanSwap from '../components/TitanSwap';
 
 const IntegratedTerminal = (props: {
@@ -9,65 +10,35 @@ const IntegratedTerminal = (props: {
   defaultExplorer: DEFAULT_EXPLORER;
 }) => {
   const { formProps, simulateWalletPassthrough, defaultExplorer } = props;
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  const passthroughWalletContextState = useUnifiedWallet();
-  const { setShowModal } = useUnifiedWalletContext();
+  const [showTitanSwap, setShowTitanSwap] = useState(false);
 
-  const launchTerminal = useCallback(async () => {
-    window.Titan.init({
-      displayMode: 'integrated',
-      integratedTargetId: 'integrated-terminal',
-
-      formProps,
-      enableWalletPassthrough: simulateWalletPassthrough,
-      passthroughWalletContextState: simulateWalletPassthrough ? passthroughWalletContextState : undefined,
-      onRequestConnectWallet: () => setShowModal(true),
-      defaultExplorer,
-    });
-  }, [
-    defaultExplorer,
-    formProps,
-    passthroughWalletContextState,
-    setShowModal,
-    simulateWalletPassthrough,
-  ]);
-
+  // Debug logging
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | undefined = undefined;
-    if (!isLoaded || !window.Titan.init) {
-      intervalId = setInterval(() => {
-        setIsLoaded(Boolean(window.Titan.init));
-      }, 500);
-    }
+    console.log('[IntegratedTerminal] Component mounted');
+    console.log('[IntegratedTerminal] Integrated terminal ready to use');
+  }, []);
 
-    if (intervalId) {
-      return () => clearInterval(intervalId);
-    }
-  }, [isLoaded]);
+  const handleClick = () => {
+    console.log('[IntegratedTerminal] Click handler called');
+    setShowTitanSwap(true);
+  };
 
-  useEffect(() => {
-    setTimeout(() => {
-      if (isLoaded && Boolean(window.Titan.init)) {
-        launchTerminal();
-      }
-    }, 200);
-  }, [isLoaded, simulateWalletPassthrough, props, launchTerminal]);
-
-  // To make sure passthrough wallet are synced
-  useEffect(() => {
-    if (!window.Titan.syncProps) return;
-    window.Titan.syncProps({ passthroughWalletContextState });
-  }, [passthroughWalletContextState, props]);
+  if (showTitanSwap) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <TitanSwap initialInputMint={formProps.initialInputMint || ''} initialOutputMint={formProps.initialOutputMint || ''} />
+      </div>
+    );
+  }
 
   return (
-    <div className=" w-full rounded-2xl text-white flex flex-col items-center  mb-4 overflow-hidden mt-9">
-      <div className="flex flex-col lg:flex-row h-full w-full overflow-auto">
-        <div className="w-full h-full rounded-xl overflow-hidden flex justify-center">
-          {/* TitanSwap UI template */}
-          <TitanSwap initialInputMint={formProps.initialInputMint || ''} initialOutputMint={formProps.initialOutputMint || ''} />
-        </div>
-      </div>
+    <div
+      className="p-4 hover:bg-white/10 rounded-xl cursor-pointer flex h-full w-full flex-col items-center justify-center text-white"
+      onClick={handleClick}
+    >
+      <WalletDisconnectedGraphic />
+      <span className="text-xs mt-4">Launch Integrated Terminal</span>
     </div>
   );
 };

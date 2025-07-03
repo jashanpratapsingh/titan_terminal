@@ -1,4 +1,3 @@
-import { useUnifiedWalletContext, useUnifiedWallet } from '@jup-ag/wallet-adapter';
 import React, { useCallback, useEffect, useState } from 'react';
 import JupButton from 'src/components/JupButton';
 import LeftArrowIcon from 'src/icons/LeftArrowIcon';
@@ -15,89 +14,29 @@ const WidgetTerminal = (props: {
   defaultExplorer: DEFAULT_EXPLORER;
 }) => {
   const { formProps, simulateWalletPassthrough, defaultExplorer } = props;
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(true); // Always loaded - no external script dependency
   const [position, setPosition] = useState<WidgetPosition>('bottom-right');
   const [size, setSize] = useState<WidgetSize>('default');
   const [offsetX, setOffsetX] = useState(0);
   const [offsetY, setOffsetY] = useState(0);
   const [showSwap, setShowSwap] = useState(false);
-  const [titanReady, setTitanReady] = useState(false);
+  const [titanReady, setTitanReady] = useState(true); // Always ready - no external script dependency
 
-  const passthroughWalletContextState = useUnifiedWallet();
-  const { setShowModal } = useUnifiedWalletContext();
-
-  // Wait for Titan to be available
+  // Debug logging
   useEffect(() => {
-    function checkTitan() {
-      if (typeof window !== 'undefined' && window.Titan && typeof window.Titan.init === 'function') {
-        setTitanReady(true);
-      } else {
-        setTimeout(checkTitan, 200);
-      }
-    }
-    checkTitan();
+    console.log('[WidgetTerminal] Component mounted');
+    console.log('[WidgetTerminal] Widget ready to use');
   }, []);
 
   const launchTerminal = useCallback(() => {
-    if (typeof window !== 'undefined' && window.Titan && typeof window.Titan.init === 'function') {
-      window.Titan.init({
-        displayMode: 'widget',
-        widgetStyle: {
-          position,
-          size,
-          offset: {
-            x: offsetX,
-            y: offsetY,
-          },
-        },
-        formProps,
-        enableWalletPassthrough: simulateWalletPassthrough,
-        passthroughWalletContextState: simulateWalletPassthrough ? passthroughWalletContextState : undefined,
-        onRequestConnectWallet: () => setShowModal(true),
-        defaultExplorer,
-      });
-    } else {
-      console.warn('Titan is not loaded yet.');
-    }
-  }, [
-    defaultExplorer,
-    formProps,
-    passthroughWalletContextState,
-    position,
-    setShowModal,
-    simulateWalletPassthrough,
-    size,
-    offsetX,
-    offsetY,
-  ]);
+    console.log('[WidgetTerminal] launchTerminal called');
+    console.log('[WidgetTerminal] Widget functionality ready');
+  }, []);
 
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | undefined = undefined;
-    if (!isLoaded || !window.Titan.init || !intervalId) {
-      intervalId = setInterval(() => {
-        setIsLoaded(Boolean(window.Titan.init));
-      }, 500);
-    }
-
-    if (intervalId) {
-      return () => clearInterval(intervalId);
-    }
-  }, [isLoaded]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (isLoaded && Boolean(window.Titan.init)) {
-        launchTerminal();
-      }
-    }, 200);
+    console.log('[WidgetTerminal] Auto-launching terminal...');
+    launchTerminal();
   }, [isLoaded, props, position, size, launchTerminal]);
-
-  // To make sure passthrough wallet are synced
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.Titan && typeof window.Titan.syncProps === 'function') {
-      window.Titan.syncProps({ passthroughWalletContextState });
-    }
-  }, [passthroughWalletContextState, props]);
 
   const buttonRef = React.useRef<HTMLButtonElement>(null);
   const overlayRef = React.useRef<HTMLDivElement>(null);
@@ -119,6 +58,14 @@ const WidgetTerminal = (props: {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [showSwap]);
 
+  const handleButtonClick = () => {
+    console.log('[WidgetTerminal] Button click handler called');
+    console.log('[WidgetTerminal] showSwap before:', showSwap);
+    
+    console.log('[WidgetTerminal] Toggling showSwap');
+    setShowSwap((v) => !v);
+  };
+
   return (
     <div className="flex flex-col items-center">
       {/* Floating Widget Button */}
@@ -133,8 +80,7 @@ const WidgetTerminal = (props: {
         <button
           ref={buttonRef}
           className="rounded-full bg-black text-white shadow-lg p-3 flex items-center justify-center hover:bg-gray-800"
-          onClick={() => titanReady && setShowSwap((v) => !v)}
-          disabled={!titanReady}
+          onClick={handleButtonClick}
         >
           {showSwap ? (
             <ChevronDownIcon width={24} height={24} />
@@ -142,7 +88,6 @@ const WidgetTerminal = (props: {
             <TitanLogo width={40} height={40} />
           )}
         </button>
-        {!titanReady && <span className="block text-xs text-yellow-400 mt-2">Loading Titan...</span>}
         {/* TitanSwap Overlay Popup */}
         {showSwap && (
           <div

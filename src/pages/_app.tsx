@@ -1,7 +1,9 @@
-import { UnifiedWalletButton, UnifiedWalletProvider } from '@jup-ag/wallet-adapter';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { DefaultSeo } from 'next-seo';
 import type { AppProps } from 'next/app';
 import React, { ReactNode, useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
+import { WalletPassThroughProvider } from 'src/contexts/WalletPassthroughProvider';
 
 import 'tailwindcss/tailwind.css';
 import '../styles/globals.css';
@@ -9,14 +11,14 @@ import '../styles/globals.css';
 import AppHeader from 'src/components/AppHeader/AppHeader';
 import Footer from 'src/components/Footer/Footer';
 
-import { SolflareWalletAdapter, UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets';
+
 import { useForm } from 'react-hook-form';
 import CodeBlocks from 'src/components/CodeBlocks/CodeBlocks';
 import FormConfigurator from 'src/components/FormConfigurator';
 import { IFormConfigurator, INITIAL_FORM_CONFIG } from 'src/constants';
 import IntegratedTerminal from 'src/content/IntegratedTerminal';
-import ModalTerminal from 'src/content/ModalTerminal';
-import WidgetTerminal from 'src/content/WidgetTerminal';
+const ModalTerminal = dynamic(() => import('src/content/ModalTerminal'), { ssr: false });
+const WidgetTerminal = dynamic(() => import('src/content/WidgetTerminal'), { ssr: false });
 import { IInit } from 'src/types';
 import V2SexyChameleonText from 'src/components/SexyChameleonText/V2SexyChameleonText';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -27,17 +29,56 @@ const isDevNodeENV = process.env.NODE_ENV === 'development';
 const isDeveloping = isDevNodeENV && typeof window !== 'undefined';
 // In NextJS preview env settings
 const isPreview = Boolean(process.env.NEXT_PUBLIC_IS_NEXT_PREVIEW);
+
+// Debug logging for Titan initialization
+console.log('[App] Environment check:', {
+  isDevNodeENV,
+  isDeveloping,
+  isPreview,
+  hasWindow: typeof window !== 'undefined',
+  nodeEnv: process.env.NODE_ENV
+});
+
 if ((isDeveloping || isPreview) && typeof window !== 'undefined') {
+  console.log('[App] Initializing Titan in development/preview mode');
   // Initialize an empty value, simulate webpack IIFE when imported
   (window as any).Titan = {};
 
   // Perform local fetch on development, and next preview
   Promise.all([import('../library'), import('../index')]).then((res) => {
+    console.log('[App] Titan library and index imported successfully');
     const [libraryProps, rendererProps] = res;
 
     (window as any).Titan = libraryProps;
     (window as any).TitanRenderer = rendererProps;
+    console.log('[App] Titan initialized on window object:', {
+      hasTitan: !!(window as any).Titan,
+      hasInit: !!(window as any).Titan?.init,
+      hasSyncProps: !!(window as any).Titan?.syncProps
+    });
+  }).catch((error) => {
+    console.error('[App] Error loading Titan library:', error);
   });
+} else {
+  console.log('[App] Production mode - Titan should be loaded via external script');
+  if (typeof window !== 'undefined') {
+    // Check if Titan is already loaded
+    const checkTitanLoaded = () => {
+      console.log('[App] Checking if Titan is loaded:', {
+        hasWindow: typeof window !== 'undefined',
+        hasTitan: !!(window as any).Titan,
+        hasInit: !!(window as any).Titan?.init,
+        hasSyncProps: !!(window as any).Titan?.syncProps
+      });
+    };
+    
+    // Check immediately
+    checkTitanLoaded();
+    
+    // Check after a delay to see if it loads
+    setTimeout(checkTitanLoaded, 2000);
+    setTimeout(checkTitanLoaded, 5000);
+  }
 }
 
 const queryClient = new QueryClient({
@@ -51,15 +92,23 @@ const queryClient = new QueryClient({
 export default function App() {
   const [tab, setTab] = useState<IInit['displayMode']>('integrated');
 
+  // Debug logging for component mount
+  useEffect(() => {
+    console.log('[App] App component mounted');
+    console.log('[App] Current tab:', tab);
+    console.log('[App] Modal and Widget ready to use');
+  }, [tab]);
+
   // Cleanup on tab change
   useEffect(() => {
+    console.log('[App] Tab changed to:', tab);
     if (window.Titan._instance) {
+      console.log('[App] Cleaning up Titan instance');
       window.Titan._instance = null;
     }
 
     setTerminalInView(false);
   }, [tab]);
-
 
   const { watch, reset, setValue, formState } = useForm<IFormConfigurator>({
     defaultValues: INITIAL_FORM_CONFIG,
@@ -67,31 +116,17 @@ export default function App() {
 
   const watchAllFields = watch();
 
-  // Solflare wallet adapter comes with Metamask Snaps supports
-  const wallets = useMemo(() => [new UnsafeBurnerWalletAdapter(), new SolflareWalletAdapter()], []);
+
 
   const ShouldWrapWalletProvider = useMemo(() => {
     return watchAllFields.simulateWalletPassthrough
       ? ({ children }: { children: ReactNode }) => (
-          <UnifiedWalletProvider
-            wallets={wallets}
-            config={{
-              env: 'mainnet-beta',
-              autoConnect: true,
-              metadata: {
-                name: 'Titan Terminal',
-                description: '',
-                url: 'https://terminal.jup.ag',
-                iconUrls: [''],
-              },
-              theme: 'jupiter',
-            }}
-          >
+          <WalletPassThroughProvider>
             {children}
-          </UnifiedWalletProvider>
+          </WalletPassThroughProvider>
         )
       : React.Fragment;
-  }, [wallets, watchAllFields.simulateWalletPassthrough]);
+  }, [watchAllFields.simulateWalletPassthrough]);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -152,7 +187,7 @@ export default function App() {
                     {watchAllFields.simulateWalletPassthrough ? (
                       <div className="absolute right-6 top-8 text-white flex flex-col justify-center text-center">
                         <div className="text-xs mb-1">Simulate dApp Wallet</div>
-                        <UnifiedWalletButton />
+                        <WalletMultiButton />
                       </div>
                     ) : null}
 
@@ -258,18 +293,18 @@ export default function App() {
                 </ShouldWrapWalletProvider>
               </div>
             </div>
-            {/* Mobile configurator */}
-            <div className="flex md:hidden">
-              <FormConfigurator {...watchAllFields} reset={reset} setValue={setValue} formState={formState} />
+
+            <div className="flex justify-center">
+              <div className="max-w-6xl bg-black/25 mt-12 rounded-xl flex flex-col md:flex-row w-full md:p-4 relative">
+                <div className="mt-8 md:mt-0 md:ml-4 h-full w-full bg-black/40 rounded-xl flex flex-col">
+                  <CodeBlocks />
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <CodeBlocks formConfigurator={watchAllFields} displayMode={tab} />
-
-        <div className="w-full mt-12">
-          <Footer />
-        </div>
+        <Footer />
       </div>
     </QueryClientProvider>
   );

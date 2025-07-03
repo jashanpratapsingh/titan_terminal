@@ -1,124 +1,187 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TitanLogo from '../icons/TitanLogo';
 import JupButton from './JupButton';
-import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
-import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
-import { WalletModalProvider, WalletMultiButton } from '@solana/wallet-adapter-react-ui';
-import { PhantomWalletAdapter } from '@solana/wallet-adapter-wallets';
-import { clusterApiUrl } from '@solana/web3.js';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletPassThrough } from 'src/contexts/WalletPassthroughProvider';
 import { shortenAddress } from '../misc/utils';
 
 interface TitanSwapProps {
-  initialInputMint: string;
-  initialOutputMint: string;
+  initialInputMint?: string;
+  initialOutputMint?: string;
 }
 
-const TOKEN_MAP: Record<string, { symbol: string; icon: string }> = {
-  // USDC (mainnet)
-  'EPjFWdd5AufqSSqeM2q8j5pchsM8h5F5u5Y5kG6XkW6': {
+const TOKEN_MAP: { [key: string]: any } = {
+  'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v': {
     symbol: 'USDC',
-    icon: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2q8j5pchsM8h5F5u5Y5kG6XkW6/logo.png',
+    name: 'USD Coin',
+    logoURI: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v/logo.png',
+    decimals: 6
   },
-  // SOL (wrapped)
   'So11111111111111111111111111111111111111112': {
     symbol: 'SOL',
-    icon: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
-  },
-  // USDT (mainnet)
-  'Es9vMFrzaCERa5t9QkKN4Uf9h3YiF1gP7r6zG3k5wC9': {
-    symbol: 'USDT',
-    icon: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/Es9vMFrzaCERa5t9QkKN4Uf9h3YiF1gP7r6zG3k5wC9/logo.png',
-  },
-  // Add more tokens as needed
+    name: 'Solana',
+    logoURI: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png',
+    decimals: 9
+  }
 };
 
 const FALLBACK_TOKEN = {
-  symbol: '???',
-  icon: 'https://raw.githubusercontent.com/solana-labs/token-list/main/assets/mainnet/So11111111111111111111111111111111111111112/logo.png', // Use SOL as fallback
+  symbol: 'UNKNOWN',
+  name: 'Unknown Token',
+  logoURI: 'https://via.placeholder.com/32x32?text=?',
+  decimals: 9
 };
 
 const TitanSwap: React.FC<TitanSwapProps> = ({ initialInputMint, initialOutputMint }) => {
-  const inputToken = TOKEN_MAP[initialInputMint] || FALLBACK_TOKEN;
-  const outputToken = TOKEN_MAP[initialOutputMint] || FALLBACK_TOKEN;
+  const [titanAvailable, setTitanAvailable] = useState(false);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('[TitanSwap] Component mounted');
+    console.log('[TitanSwap] Props:', { initialInputMint, initialOutputMint });
+    console.log('[TitanSwap] Window object available:', typeof window !== 'undefined');
+    if (typeof window !== 'undefined') {
+      console.log('[TitanSwap] Window.Titan available:', !!window.Titan);
+      console.log('[TitanSwap] Window.Titan.init available:', !!(window.Titan && typeof window.Titan.init === 'function'));
+      setTitanAvailable(!!(window.Titan && typeof window.Titan.init === 'function'));
+    }
+  }, [initialInputMint, initialOutputMint]);
+
+  // Check for Titan availability periodically
+  useEffect(() => {
+    const checkTitan = () => {
+      if (typeof window !== 'undefined' && window.Titan && typeof window.Titan.init === 'function') {
+        console.log('[TitanSwap] Titan became available');
+        setTitanAvailable(true);
+      }
+    };
+
+    // Check immediately
+    checkTitan();
+
+    // Check periodically
+    const interval = setInterval(checkTitan, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const inputToken = TOKEN_MAP[initialInputMint || ''] || FALLBACK_TOKEN;
+  const outputToken = TOKEN_MAP[initialOutputMint || ''] || FALLBACK_TOKEN;
 
   const [inputAmount, setInputAmount] = useState('');
   const [outputAmount, setOutputAmount] = useState('');
 
   // Use global wallet context
-  const { publicKey, connected, connecting } = useWalletPassThrough();
+  const { publicKey, connecting } = useWalletPassThrough();
 
   return (
-    <div className="bg-black rounded-2xl p-4 w-[360px] mx-auto text-white shadow-lg">
+    <div className="bg-black rounded-2xl p-6 min-w-[360px] max-w-[480px]">
+      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center space-x-2">
-          <TitanLogo width={32} height={32} />
-          <span className="font-bold text-xl">Titan</span>
+          <TitanLogo width={24} height={24} />
+          <span className="text-white font-semibold text-lg">Titan Swap</span>
         </div>
-        {!connected ? (
-          <JupButton size="md" className="!bg-[#23272B] !text-white !rounded-xl !px-4 !py-2">
-            {connecting ? 'Connecting...' : 'Connect Wallet'}
-          </JupButton>
-        ) : (
-          <span className="bg-[#23272B] text-white rounded-xl px-4 py-2 text-xs font-mono">
-            {shortenAddress(publicKey?.toBase58?.() || String(publicKey), 4)}
-          </span>
-        )}
+        <button className="text-gray-400 hover:text-white">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M18 6L6 18M6 6l12 12" />
+          </svg>
+        </button>
       </div>
-      {/* Selling Section */}
-      <div className="bg-[#181C20] rounded-xl p-4 mb-4">
-        <div className="mb-2 text-sm text-white/70">Selling</div>
-        <div className="flex items-center justify-between bg-[#23272B] rounded-lg p-3 mb-2">
-          <div className="flex items-center space-x-3">
-            <img src={inputToken.icon} alt={inputToken.symbol} className="w-8 h-8" />
-            <span className="font-semibold text-lg">{inputToken.symbol}</span>
+
+      {/* Input Token */}
+      <div className="bg-gray-900 rounded-xl p-4 mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-gray-400 text-sm">From</span>
+          <span className="text-gray-400 text-sm">Balance: 0.00</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
+            <img src={inputToken.logoURI} alt={inputToken.symbol} className="w-8 h-8 rounded-full" />
+            <span className="text-white font-medium">{inputToken.symbol}</span>
           </div>
           <input
             type="text"
-            inputMode="decimal"
-            pattern="[0-9]*"
+            placeholder="0.00"
             value={inputAmount}
-            onChange={e => setInputAmount(e.target.value)}
-            placeholder="0.00"
-            className="w-24 px-2 py-1 rounded bg-transparent text-right text-2xl font-semibold outline-none border-none hide-number-input-arrows"
-            style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
+            onChange={(e) => setInputAmount(e.target.value)}
+            className="flex-1 bg-transparent text-white text-right text-lg font-medium outline-none"
           />
         </div>
-        <div className="flex justify-between items-center text-xs text-white/50 mt-1">
-          <span className="uppercase">{inputToken.symbol}</span>
-          <span>{inputAmount || '0.00'}</span>
-        </div>
       </div>
+
       {/* Swap Arrow */}
-      <div className="flex justify-center my-2">
-        <div className="bg-[#23272B] rounded-full p-2">
-          <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path fill="#fff" d="M10.707 14.707a1 1 0 0 1-1.414 0l-3-3a1 1 0 0 1 1.414-1.414L9 11.586V6a1 1 0 1 1 2 0v5.586l1.293-1.293a1 1 0 1 1 1.414 1.414l-3 3Z"/></svg>
-        </div>
+      <div className="flex justify-center mb-4">
+        <button className="bg-gray-800 rounded-full p-2 hover:bg-gray-700">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M7 10l5 5 5-5" />
+          </svg>
+        </button>
       </div>
-      {/* Buying Section */}
-      <div className="bg-[#181C20] rounded-xl p-4 mb-4">
-        <div className="mb-2 text-sm text-white/70">Buying</div>
-        <div className="flex items-center justify-between bg-[#23272B] rounded-lg p-3 mb-2">
-          <div className="flex items-center space-x-3">
-            <img src={outputToken.icon} alt={outputToken.symbol} className="w-8 h-8" />
-            <span className="font-semibold text-lg">{outputToken.symbol}</span>
+
+      {/* Output Token */}
+      <div className="bg-gray-900 rounded-xl p-4 mb-6">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-gray-400 text-sm">To</span>
+          <span className="text-gray-400 text-sm">Balance: 0.00</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
+            <img src={outputToken.logoURI} alt={outputToken.symbol} className="w-8 h-8 rounded-full" />
+            <span className="text-white font-medium">{outputToken.symbol}</span>
           </div>
           <input
             type="text"
-            inputMode="decimal"
-            pattern="[0-9]*"
-            value={outputAmount}
-            onChange={e => setOutputAmount(e.target.value)}
             placeholder="0.00"
-            className="w-24 px-2 py-1 rounded bg-transparent text-right text-2xl font-semibold outline-none border-none hide-number-input-arrows"
-            style={{ WebkitAppearance: 'none', MozAppearance: 'textfield' }}
+            value={outputAmount}
+            onChange={(e) => setOutputAmount(e.target.value)}
+            className="flex-1 bg-transparent text-white text-right text-lg font-medium outline-none"
           />
         </div>
-        <div className="flex justify-between items-center text-xs text-white/50 mt-1">
-          <span className="uppercase">{outputToken.symbol}</span>
-          <span>{outputAmount || '0.00'}</span>
-        </div>
       </div>
+
+      {/* Wallet Connection */}
+      {!publicKey ? (
+        <div className="mb-4">
+          <WalletMultiButton className="w-full bg-titan-orange hover:bg-titan-yellow text-white font-bold py-3 px-4 rounded-xl" />
+        </div>
+      ) : (
+        <div className="mb-4">
+          <div className="bg-gray-800 rounded-xl p-3 mb-3">
+            <div className="flex items-center justify-between">
+              <span className="text-gray-400 text-sm">Connected Wallet</span>
+              <span className="text-white text-sm">{shortenAddress(publicKey.toString())}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Swap Button */}
+      <JupButton
+        size="lg"
+        className="w-full bg-titan-orange hover:bg-titan-yellow text-white font-bold py-3 px-4 rounded-xl"
+        disabled={!publicKey || connecting}
+      >
+        {connecting ? 'Connecting...' : !publicKey ? 'Connect Wallet' : 'Swap'}
+      </JupButton>
+
+      {/* Swap Info */}
+      {publicKey && (
+        <div className="mt-4 space-y-2 text-sm text-gray-400">
+          <div className="flex justify-between">
+            <span>Rate</span>
+            <span>1 {inputToken.symbol} = 0.00 {outputToken.symbol}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Price Impact</span>
+            <span className="text-green-400">0.00%</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Network Fee</span>
+            <span>~$0.00</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

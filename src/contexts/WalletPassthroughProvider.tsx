@@ -1,67 +1,60 @@
-import { SendTransactionOptions, useWallet, Wallet, WalletContextState, WalletName } from '@jup-ag/wallet-adapter';
-import { Connection, PublicKey, Transaction, VersionedTransaction } from '@solana/web3.js';
-import { useAtom } from 'jotai';
-import React, { createContext, FC, PropsWithChildren, ReactNode, useContext, useMemo } from 'react';
-import { appProps } from 'src/library';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { PublicKey } from '@solana/web3.js';
 
-const initialPassThrough: WalletContextState = {
-  publicKey: null,
-  wallets: [],
-  wallet: null,
-  connect: async () => {},
-  select: () => {},
-  connecting: false,
-  connected: false,
-  disconnect: async () => {},
-  autoConnect: false,
-  disconnecting: false,
-  sendTransaction: async (transaction: Transaction | VersionedTransaction, connection: Connection, options?: SendTransactionOptions) => '',
-  signTransaction: undefined,
-  signAllTransactions: undefined,
-  signMessage: undefined,
-  signIn: undefined,
-};
-
-export const WalletPassthroughContext = createContext<WalletContextState>(initialPassThrough);
-
-export function useWalletPassThrough(): WalletContextState {
-  return useContext(WalletPassthroughContext);
+interface WalletContextState {
+  publicKey: PublicKey | null;
+  connecting: boolean;
+  connected: boolean;
+  connect: () => Promise<void>;
+  disconnect: () => Promise<void>;
 }
 
-const FromWalletAdapter: FC<PropsWithChildren> = ({ children }) => {
-  const walletContextState = useWallet();
-  return <WalletPassthroughContext.Provider value={walletContextState}>{children}</WalletPassthroughContext.Provider>;
+const WalletContext = createContext<WalletContextState | undefined>(undefined);
+
+export const useWalletPassThrough = () => {
+  const context = useContext(WalletContext);
+  if (!context) {
+    throw new Error('useWalletPassThrough must be used within a WalletPassThroughProvider');
+  }
+  return context;
 };
 
-const WalletPassthroughProvider: FC<{ children: ReactNode }> = ({ children }) => {
-  const [atom] = useAtom(appProps);
-  const wallet = atom?.passthroughWalletContextState?.wallet;
+interface WalletPassThroughProviderProps {
+  children: ReactNode;
+}
 
-  const walletPassthrough: WalletContextState = useMemo(() => {
-    return {
-      ...initialPassThrough,
-      ...atom?.passthroughWalletContextState,
-      disconnect: async () => {
-        try {
-          if (wallet?.adapter?.disconnect) {
-            return wallet?.adapter?.disconnect();
-          }
-        } catch (error) {
-          console.log(error);
-        }
-      },
-    };
-  }, [atom?.passthroughWalletContextState, wallet?.adapter]);
+export const WalletPassThroughProvider: React.FC<WalletPassThroughProviderProps> = ({ children }) => {
+  const [publicKey, setPublicKey] = useState<PublicKey | null>(null);
+  const [connecting, setConnecting] = useState(false);
 
-  if (!window.Titan.enableWalletPassthrough) {
-    return <FromWalletAdapter>{children}</FromWalletAdapter>;
-  }
+  const connect = async () => {
+    setConnecting(true);
+    try {
+      // Simulate wallet connection
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setPublicKey(new PublicKey('11111111111111111111111111111111'));
+    } catch (error) {
+      console.error('Failed to connect wallet:', error);
+    } finally {
+      setConnecting(false);
+    }
+  };
 
-  if (walletPassthrough) {
-    return <WalletPassthroughContext.Provider value={walletPassthrough}>{children}</WalletPassthroughContext.Provider>;
-  }
+  const disconnect = async () => {
+    setPublicKey(null);
+  };
 
-  return <>{children}</>;
+  const value: WalletContextState = {
+    publicKey,
+    connecting,
+    connected: !!publicKey,
+    connect,
+    disconnect,
+  };
+
+  return (
+    <WalletContext.Provider value={value}>
+      {children}
+    </WalletContext.Provider>
+  );
 };
-
-export default WalletPassthroughProvider;
